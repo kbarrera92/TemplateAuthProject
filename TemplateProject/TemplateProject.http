@@ -229,3 +229,243 @@ Authorization: Bearer {{token}}
 # Sin token: debe responder 401
 GET {{TemplateProject_HostAddress}}/api/ingredientes
 Accept: application/json
+
+### Platos y recetas
+
+# @name crearUnidadMedidaPlato
+POST {{TemplateProject_HostAddress}}/api/unidades-medida
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Kilogramo",
+  "abreviatura": "kg"
+}
+
+###
+
+@unidadMedidaPlatoId = {{crearUnidadMedidaPlato.response.body.$.id}}
+
+# @name crearCategoriaIngredientePlato
+POST {{TemplateProject_HostAddress}}/api/categorias-ingredientes
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Carnes",
+  "descripcion": "Carnes para preparación de platos"
+}
+
+###
+
+@categoriaIngredientePlatoId = {{crearCategoriaIngredientePlato.response.body.$.id}}
+
+# @name crearIngredientePlato
+POST {{TemplateProject_HostAddress}}/api/ingredientes
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Carne de res",
+  "descripcion": "Para bandeja paisa",
+  "precioUnitario": 8,
+  "stockMinimo": 5,
+  "categoriaIngredienteId": "{{categoriaIngredientePlatoId}}",
+  "unidadMedidaId": "{{unidadMedidaPlatoId}}"
+}
+
+###
+
+@ingredientePlatoId = {{crearIngredientePlato.response.body.$.id}}
+
+# @name crearPlato
+POST {{TemplateProject_HostAddress}}/api/platos
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Bandeja paisa",
+  "descripcion": "Plato típico",
+  "precioVenta": 25
+}
+
+###
+
+@platoId = {{crearPlato.response.body.$.id}}
+
+GET {{TemplateProject_HostAddress}}/api/platos
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/platos?activo=true
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/platos/{{platoId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+# Agregar ingrediente a la receta
+POST {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/receta
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "ingredienteId": "{{ingredientePlatoId}}",
+  "cantidad": 2
+}
+
+###
+
+# Debe responder 400: el ingrediente ya está en la receta
+POST {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/receta
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "ingredienteId": "{{ingredientePlatoId}}",
+  "cantidad": 1
+}
+
+###
+
+# Debe responder 400: ingrediente inexistente
+POST {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/receta
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "ingredienteId": "00000000-0000-0000-0000-000000000000",
+  "cantidad": 1
+}
+
+###
+
+# Debe responder 400: cantidad inválida
+POST {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/receta
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "ingredienteId": "{{ingredientePlatoId}}",
+  "cantidad": 0
+}
+
+###
+
+# Ver costoReceta y margenGanancia calculados
+GET {{TemplateProject_HostAddress}}/api/platos/{{platoId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+# Actualizar cantidad del ingrediente en la receta
+PUT {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/receta/{{ingredientePlatoId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "cantidad": 5
+}
+
+###
+
+# Debe responder 400: el ingrediente no pertenece a la receta
+PUT {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/receta/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "cantidad": 1
+}
+
+###
+
+PUT {{TemplateProject_HostAddress}}/api/platos/{{platoId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Bandeja paisa especial",
+  "descripcion": "Versión actualizada",
+  "precioVenta": 30
+}
+
+###
+
+# Debe responder 400: nombre duplicado
+POST {{TemplateProject_HostAddress}}/api/platos
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Bandeja paisa especial",
+  "descripcion": "Duplicado",
+  "precioVenta": 10
+}
+
+###
+
+# Quitar ingrediente de la receta
+DELETE {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/receta/{{ingredientePlatoId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Tras el DELETE anterior: itemsReceta vacío, costoReceta en 0
+GET {{TemplateProject_HostAddress}}/api/platos/{{platoId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/platos/{{platoId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Tras desactivar: no debe aparecer en activo=true
+GET {{TemplateProject_HostAddress}}/api/platos?activo=true
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+# Debe aparecer en activo=false
+GET {{TemplateProject_HostAddress}}/api/platos?activo=false
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredientePlatoId}}
+Authorization: Bearer {{token}}
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/categorias-ingredientes/{{categoriaIngredientePlatoId}}
+Authorization: Bearer {{token}}
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/unidades-medida/{{unidadMedidaPlatoId}}
+Authorization: Bearer {{token}}
