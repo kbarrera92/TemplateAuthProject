@@ -11,6 +11,7 @@ Content-Type: application/json; charset=utf-8
 
 ###
 
+# @name login
 POST {{TemplateProject_HostAddress}}/api/usuarios/login
 Accept: application/json
 Content-Type: application/json; charset=utf-8
@@ -19,3 +20,212 @@ Content-Type: application/json; charset=utf-8
   "email": "kevin.barre92@yahoo.com",
   "password": "Peorparaelsol2026#"
 }
+
+###
+
+@token = {{login.response.body.$.token}}
+
+### Unidades de medida
+
+# @name crearUnidadMedida
+POST {{TemplateProject_HostAddress}}/api/unidades-medida
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Libras",
+  "abreviatura": "lbs"
+}
+
+###
+
+@unidadMedidaId = {{crearUnidadMedida.response.body.$.id}}
+
+GET {{TemplateProject_HostAddress}}/api/unidades-medida
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/unidades-medida?activo=true
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/unidades-medida/{{unidadMedidaId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+PUT {{TemplateProject_HostAddress}}/api/unidades-medida/{{unidadMedidaId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Libra",
+  "abreviatura": "Lb",
+  "activo": true
+}
+
+### Categorías de ingredientes
+
+# @name crearCategoriaIngrediente
+POST {{TemplateProject_HostAddress}}/api/categorias-ingredientes
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Mariscos",
+  "descripcion": "Mariscos frescos"
+}
+
+###
+
+@categoriaIngredienteId = {{crearCategoriaIngrediente.response.body.$.id}}
+
+GET {{TemplateProject_HostAddress}}/api/categorias-ingredientes
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/categorias-ingredientes/{{categoriaIngredienteId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+PUT {{TemplateProject_HostAddress}}/api/categorias-ingredientes/{{categoriaIngredienteId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Mariscos",
+  "descripcion": "Mariscos"
+}
+
+### Ingredientes
+
+# @name crearIngrediente
+POST {{TemplateProject_HostAddress}}/api/ingredientes
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Camarones",
+  "descripcion": "Camarones Jumbo",
+  "precioUnitario": 10,
+  "stockMinimo": 5,
+  "categoriaIngredienteId": "{{categoriaIngredienteId}}",
+  "unidadMedidaId": "{{unidadMedidaId}}"
+}
+
+###
+
+@ingredienteId = {{crearIngrediente.response.body.$.id}}
+
+# Debe responder 400: nombre duplicado
+POST {{TemplateProject_HostAddress}}/api/ingredientes
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Camarones",
+  "precioUnitario": 5,
+  "stockMinimo": 1,
+  "categoriaIngredienteId": "{{categoriaIngredienteId}}",
+  "unidadMedidaId": "{{unidadMedidaId}}"
+}
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/ingredientes
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/ingredientes?activo=true
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+GET {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+PUT {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "nombre": "Camarones",
+  "descripcion": "Camarones Jumbo",
+  "precioUnitario": 12.5,
+  "stockMinimo": 8,
+  "categoriaIngredienteId": "{{categoriaIngredienteId}}",
+  "unidadMedidaId": "{{unidadMedidaId}}"
+}
+
+###
+
+PATCH {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}/stock
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "cantidad": 20
+}
+
+###
+
+# Debe responder 400: dejaría el stock en negativo
+PATCH {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}/stock
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "cantidad": -1000
+}
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Tras el DELETE anterior: sigue existiendo, con activo=false
+GET {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/categorias-ingredientes/{{categoriaIngredienteId}}
+Authorization: Bearer {{token}}
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/unidades-medida/{{unidadMedidaId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Sin token: debe responder 401
+GET {{TemplateProject_HostAddress}}/api/ingredientes
+Accept: application/json

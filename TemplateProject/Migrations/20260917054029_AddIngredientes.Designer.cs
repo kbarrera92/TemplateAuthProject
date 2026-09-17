@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemplateProject.Datos;
 
@@ -11,9 +12,11 @@ using TemplateProject.Datos;
 namespace TemplateProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260917054029_AddIngredientes")]
+    partial class AddIngredientes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,29 +236,15 @@ namespace TemplateProject.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("FechaCreacion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<DateTime?>("FechaModificacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("UsuarioCreacionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Nombre")
                         .IsUnique();
-
-                    b.HasIndex("UsuarioCreacionId");
 
                     b.ToTable("CategoriasIngredientes", (string)null);
                 });
@@ -336,29 +325,15 @@ namespace TemplateProject.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("FechaCreacion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<DateTime?>("FechaModificacion")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("UsuarioCreacionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Nombre")
                         .IsUnique();
-
-                    b.HasIndex("UsuarioCreacionId");
 
                     b.ToTable("UnidadesMedida", (string)null);
                 });
@@ -414,15 +389,6 @@ namespace TemplateProject.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TemplateProject.Dominio.Entidades.CategoriaIngrediente", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsuarioCreacionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TemplateProject.Dominio.Entidades.Ingrediente", b =>
                 {
                     b.HasOne("TemplateProject.Dominio.Entidades.CategoriaIngrediente", "CategoriaIngrediente")
@@ -446,15 +412,6 @@ namespace TemplateProject.Migrations
                     b.Navigation("CategoriaIngrediente");
 
                     b.Navigation("UnidadMedida");
-                });
-
-            modelBuilder.Entity("TemplateProject.Dominio.Entidades.UnidadMedida", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsuarioCreacionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("TemplateProject.Dominio.Entidades.CategoriaIngrediente", b =>
