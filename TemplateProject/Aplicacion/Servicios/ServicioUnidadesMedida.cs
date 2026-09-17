@@ -75,6 +75,17 @@ namespace TemplateProject.Aplicacion.Servicios
             return true;
         }
 
+        public async Task<bool> Activar(Guid id)
+        {
+            var unidad = await contexto.UnidadesMedida.FindAsync(id);
+            if (unidad is null)
+                return false;
+
+            unidad.Activar(tiempo);
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+
         private async Task ValidarNombreDisponible(string nombre, Guid? idAExcluir)
         {
             var nombreNormalizado = nombre.Trim();

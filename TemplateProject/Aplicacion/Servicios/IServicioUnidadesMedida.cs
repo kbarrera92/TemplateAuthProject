@@ -9,5 +9,6 @@ namespace TemplateProject.Aplicacion.Servicios
         Task<UnidadMedidaDTO> Crear(CrearUnidadMedidaDTO dto);
         Task<UnidadMedidaDTO?> Actualizar(Guid id, ActualizarUnidadMedidaDTO dto);
         Task<bool> Desactivar(Guid id);
+        Task<bool> Activar(Guid id);
     }
 }

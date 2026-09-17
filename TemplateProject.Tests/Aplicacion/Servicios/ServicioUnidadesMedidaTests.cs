@@ -84,5 +84,32 @@ namespace TemplateProject.Tests.Aplicacion.Servicios
             Assert.Single(soloActivas);
             Assert.Equal(activa.Id, soloActivas[0].Id);
         }
+
+        [Fact]
+        public async Task Activar_UnidadInactiva_QuedaActiva()
+        {
+            using var contexto = CrearContexto();
+            var servicio = new ServicioUnidadesMedida(contexto, CrearReloj(), CrearProveedorUsuario());
+            var unidad = await servicio.Crear(new CrearUnidadMedidaDTO { Nombre = "Kilogramo", Abreviatura = "kg" });
+            await servicio.Desactivar(unidad.Id);
+
+            var resultado = await servicio.Activar(unidad.Id);
+
+            Assert.True(resultado);
+            var enBd = await contexto.UnidadesMedida.FindAsync(unidad.Id);
+            Assert.NotNull(enBd);
+            Assert.True(enBd!.Activo);
+        }
+
+        [Fact]
+        public async Task Activar_IdInexistente_RetornaFalse()
+        {
+            using var contexto = CrearContexto();
+            var servicio = new ServicioUnidadesMedida(contexto, CrearReloj(), CrearProveedorUsuario());
+
+            var resultado = await servicio.Activar(Guid.NewGuid());
+
+            Assert.False(resultado);
+        }
     }
 }

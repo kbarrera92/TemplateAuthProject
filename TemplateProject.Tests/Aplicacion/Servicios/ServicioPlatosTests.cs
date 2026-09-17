@@ -106,6 +106,34 @@ namespace TemplateProject.Tests.Aplicacion.Servicios
         }
 
         [Fact]
+        public async Task Activar_PlatoInactivo_QuedaActivo()
+        {
+            using var contexto = CrearContexto();
+            var tiempo = CrearReloj();
+            var servicio = new ServicioPlatos(contexto, tiempo, CrearProveedorUsuario());
+            var plato = await servicio.Crear(CrearDtoValido());
+            await servicio.Desactivar(plato.Id);
+
+            var resultado = await servicio.Activar(plato.Id);
+
+            Assert.True(resultado);
+            var enBd = await contexto.Platos.FindAsync(plato.Id);
+            Assert.NotNull(enBd);
+            Assert.True(enBd!.Activo);
+        }
+
+        [Fact]
+        public async Task Activar_IdInexistente_RetornaFalse()
+        {
+            using var contexto = CrearContexto();
+            var servicio = new ServicioPlatos(contexto, CrearReloj(), CrearProveedorUsuario());
+
+            var resultado = await servicio.Activar(Guid.NewGuid());
+
+            Assert.False(resultado);
+        }
+
+        [Fact]
         public async Task Listar_FiltraPorActivo()
         {
             using var contexto = CrearContexto();

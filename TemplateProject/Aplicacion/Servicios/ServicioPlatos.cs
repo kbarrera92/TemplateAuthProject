@@ -76,6 +76,17 @@ namespace TemplateProject.Aplicacion.Servicios
             return true;
         }
 
+        public async Task<bool> Activar(Guid id)
+        {
+            var plato = await contexto.Platos.FindAsync(id);
+            if (plato is null)
+                return false;
+
+            plato.Activar(tiempo);
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<PlatoDTO?> AgregarIngrediente(Guid platoId, AgregarItemRecetaDTO dto)
         {
             var plato = await CargarPlatosConDetalle().FirstOrDefaultAsync(x => x.Id == platoId);

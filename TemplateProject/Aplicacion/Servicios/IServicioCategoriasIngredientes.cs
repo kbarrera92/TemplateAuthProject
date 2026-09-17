@@ -9,5 +9,6 @@ namespace TemplateProject.Aplicacion.Servicios
         Task<CategoriaIngredienteDTO> Crear(CrearCategoriaIngredienteDTO dto);
         Task<CategoriaIngredienteDTO?> Actualizar(Guid id, ActualizarCategoriaIngredienteDTO dto);
         Task<bool> Desactivar(Guid id);
+        Task<bool> Activar(Guid id);
     }
 }

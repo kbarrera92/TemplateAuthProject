@@ -104,6 +104,17 @@ namespace TemplateProject.Aplicacion.Servicios
             return true;
         }
 
+        public async Task<bool> Activar(Guid id)
+        {
+            var ingrediente = await contexto.Ingredientes.FindAsync(id);
+            if (ingrediente is null)
+                return false;
+
+            ingrediente.Activar(tiempo);
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<IngredienteDTO?> AjustarStock(Guid id, decimal cantidad)
         {
             var ingrediente = await contexto.Ingredientes
