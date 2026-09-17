@@ -1,6 +1,21 @@
-@TemplateProject_HostAddress = http://localhost:5029
+@TemplateProject_HostAddress = https://localhost:7215
 
-GET {{TemplateProject_HostAddress}}/weatherforecast/
+POST {{TemplateProject_HostAddress}}/api/usuarios
 Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "email": "kevin.barre92@yahoo.com",
+  "password": "Peorparaelsol2026#"
+}
 
 ###
+
+POST {{TemplateProject_HostAddress}}/api/usuarios/login
+Accept: application/json
+Content-Type: application/json; charset=utf-8
+
+{
+  "email": "kevin.barre92@yahoo.com",
+  "password": "Peorparaelsol2026#"
+}
