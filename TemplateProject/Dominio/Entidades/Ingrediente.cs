@@ -1,8 +1,9 @@
+using TemplateProject.Dominio.Comun;
+
 namespace TemplateProject.Dominio.Entidades
 {
-    public class Ingrediente
+    public class Ingrediente : EntidadAuditable
     {
-        public Guid Id { get; private set; }
         public string Nombre { get; private set; } = null!;
         public string? Descripcion { get; private set; }
         public bool Activo { get; private set; } = true;
@@ -16,10 +17,6 @@ namespace TemplateProject.Dominio.Entidades
         public Guid UnidadMedidaId { get; private set; }
         public UnidadMedida? UnidadMedida { get; private set; }
 
-        public DateTime FechaCreacion { get; private set; }
-        public DateTime? FechaModificacion { get; private set; }
-        public string UsuarioCreacionId { get; private set; } = null!;
-
         private Ingrediente()
         {
         }
@@ -31,21 +28,25 @@ namespace TemplateProject.Dominio.Entidades
             decimal stockMinimo,
             Guid categoriaIngredienteId,
             Guid unidadMedidaId,
-            string usuarioCreacionId)
+            string usuarioCreacionId,
+            TimeProvider tiempo)
         {
             if (string.IsNullOrWhiteSpace(nombre))
-                throw new ArgumentException("El nombre es obligatorio.", nameof(nombre));
+                throw new ExcepcionDominio("El nombre es obligatorio.");
 
             if (precioUnitario < 0)
-                throw new ArgumentException("El precio unitario no puede ser negativo.", nameof(precioUnitario));
+                throw new ExcepcionDominio("El precio unitario no puede ser negativo.");
 
             if (stockMinimo < 0)
-                throw new ArgumentException("El stock mínimo no puede ser negativo.", nameof(stockMinimo));
+                throw new ExcepcionDominio("El stock mínimo no puede ser negativo.");
 
-            if (string.IsNullOrWhiteSpace(usuarioCreacionId))
-                throw new ArgumentException("El usuario de creación es obligatorio.", nameof(usuarioCreacionId));
+            if (categoriaIngredienteId == Guid.Empty)
+                throw new ExcepcionDominio("La categoría del ingrediente es obligatoria.");
 
-            return new Ingrediente
+            if (unidadMedidaId == Guid.Empty)
+                throw new ExcepcionDominio("La unidad de medida es obligatoria.");
+
+            var ingrediente = new Ingrediente
             {
                 Id = Guid.NewGuid(),
                 Nombre = nombre.Trim(),
@@ -55,43 +56,86 @@ namespace TemplateProject.Dominio.Entidades
                 StockActual = 0,
                 StockMinimo = stockMinimo,
                 CategoriaIngredienteId = categoriaIngredienteId,
-                UnidadMedidaId = unidadMedidaId,
-                UsuarioCreacionId = usuarioCreacionId,
-                FechaCreacion = DateTime.UtcNow
+                UnidadMedidaId = unidadMedidaId
             };
+
+            ingrediente.RegistrarCreacion(usuarioCreacionId, tiempo);
+            return ingrediente;
         }
 
-        public void AjustarStock(decimal cantidad)
+        public void ActualizarNombre(string nombre, TimeProvider tiempo)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new ExcepcionDominio("El nombre es obligatorio.");
+
+            Nombre = nombre.Trim();
+            RegistrarModificacion(tiempo);
+        }
+
+        public void ActualizarDescripcion(string? descripcion, TimeProvider tiempo)
+        {
+            Descripcion = descripcion;
+            RegistrarModificacion(tiempo);
+        }
+
+        public void ActualizarStockMinimo(decimal stockMinimo, TimeProvider tiempo)
+        {
+            if (stockMinimo < 0)
+                throw new ExcepcionDominio("El stock mínimo no puede ser negativo.");
+
+            StockMinimo = stockMinimo;
+            RegistrarModificacion(tiempo);
+        }
+
+        public void CambiarCategoria(Guid categoriaIngredienteId, TimeProvider tiempo)
+        {
+            if (categoriaIngredienteId == Guid.Empty)
+                throw new ExcepcionDominio("La categoría del ingrediente es obligatoria.");
+
+            CategoriaIngredienteId = categoriaIngredienteId;
+            RegistrarModificacion(tiempo);
+        }
+
+        public void CambiarUnidadMedida(Guid unidadMedidaId, TimeProvider tiempo)
+        {
+            if (unidadMedidaId == Guid.Empty)
+                throw new ExcepcionDominio("La unidad de medida es obligatoria.");
+
+            UnidadMedidaId = unidadMedidaId;
+            RegistrarModificacion(tiempo);
+        }
+
+        public void AjustarStock(decimal cantidad, TimeProvider tiempo)
         {
             var nuevoStock = StockActual + cantidad;
             if (nuevoStock < 0)
-                throw new InvalidOperationException("El ajuste dejaría el stock en negativo.");
+                throw new ExcepcionDominio("El ajuste dejaría el stock en negativo.");
 
             StockActual = nuevoStock;
-            FechaModificacion = DateTime.UtcNow;
+            RegistrarModificacion(tiempo);
         }
 
-        public void ActualizarPrecio(decimal nuevoPrecio)
+        public void ActualizarPrecio(decimal nuevoPrecio, TimeProvider tiempo)
         {
             if (nuevoPrecio < 0)
-                throw new ArgumentException("El precio unitario no puede ser negativo.", nameof(nuevoPrecio));
+                throw new ExcepcionDominio("El precio unitario no puede ser negativo.");
 
             PrecioUnitario = nuevoPrecio;
-            FechaModificacion = DateTime.UtcNow;
+            RegistrarModificacion(tiempo);
         }
 
-        public void Activar()
+        public void Activar(TimeProvider tiempo)
         {
             Activo = true;
-            FechaModificacion = DateTime.UtcNow;
+            RegistrarModificacion(tiempo);
         }
 
-        public void Desactivar()
+        public void Desactivar(TimeProvider tiempo)
         {
             Activo = false;
-            FechaModificacion = DateTime.UtcNow;
+            RegistrarModificacion(tiempo);
         }
 
-        public bool StockPorDebajoDelMinimo() => StockActual < StockMinimo;
+        public bool StockPorDebajoDelMinimo() => StockActual <= StockMinimo;
     }
 }

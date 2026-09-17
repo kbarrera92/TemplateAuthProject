@@ -21,6 +21,7 @@ builder.Services.AddIdentityCore<IdentityUser>()
 builder.Services.AddScoped<UserManager<IdentityUser>>();
 builder.Services.AddScoped<SignInManager<IdentityUser>>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
 {

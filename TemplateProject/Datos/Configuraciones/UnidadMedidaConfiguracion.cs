@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TemplateProject.Dominio.Entidades;
@@ -19,8 +20,16 @@ namespace TemplateProject.Datos.Configuraciones
                 .IsRequired()
                 .HasMaxLength(10);
 
+            builder.Property(x => x.FechaCreacion)
+                .HasDefaultValueSql("GETUTCDATE()");
+
             builder.HasIndex(x => x.Nombre)
                 .IsUnique();
+
+            builder.HasOne<IdentityUser>()
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioCreacionId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
