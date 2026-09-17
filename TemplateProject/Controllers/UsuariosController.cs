@@ -81,13 +81,15 @@ namespace TemplateProject.Controllers
 
         private async Task<RespuestaAutenticacionDTO> ConstruirToken(CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
+            var usuario = await userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
+
             var claims = new List<Claim>
             {
-                new Claim("email", credencialesUsuarioDTO.Email)
+                new Claim("email", credencialesUsuarioDTO.Email),
+                new Claim("id", usuario!.Id)
             };
 
-            var usuario = await userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
-            var claimsDB = await userManager.GetClaimsAsync(usuario!);
+            var claimsDB = await userManager.GetClaimsAsync(usuario);
 
             claims.AddRange(claimsDB);
 

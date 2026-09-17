@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TemplateProject.Aplicacion.Errores;
+using TemplateProject.Aplicacion.Servicios;
 using TemplateProject.Datos;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +25,14 @@ builder.Services.AddScoped<SignInManager<IdentityUser>>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(TimeProvider.System);
 
+builder.Services.AddScoped<IProveedorUsuario, ProveedorUsuarioHttp>();
+builder.Services.AddScoped<IServicioCategoriasIngredientes, ServicioCategoriasIngredientes>();
+builder.Services.AddScoped<IServicioUnidadesMedida, ServicioUnidadesMedida>();
+builder.Services.AddScoped<IServicioIngredientes, ServicioIngredientes>();
+
+builder.Services.AddExceptionHandler<ManejadorExcepcionDominio>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
 {
     opciones.MapInboundClaims = false;
@@ -40,6 +50,8 @@ builder.Services.AddAuthentication().AddJwtBearer(opciones =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -47,6 +59,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
