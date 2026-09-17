@@ -71,6 +71,17 @@ Content-Type: application/json; charset=utf-8
   "activo": true
 }
 
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/unidades-medida/{{unidadMedidaId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Reactivar: vuelve a quedar activo=true
+POST {{TemplateProject_HostAddress}}/api/unidades-medida/{{unidadMedidaId}}/activar
+Authorization: Bearer {{token}}
+
 ### Categorías de ingredientes
 
 # @name crearCategoriaIngrediente
@@ -109,6 +120,17 @@ Content-Type: application/json; charset=utf-8
   "nombre": "Mariscos",
   "descripcion": "Mariscos"
 }
+
+###
+
+DELETE {{TemplateProject_HostAddress}}/api/categorias-ingredientes/{{categoriaIngredienteId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Reactivar: vuelve a quedar activo=true
+POST {{TemplateProject_HostAddress}}/api/categorias-ingredientes/{{categoriaIngredienteId}}/activar
+Authorization: Bearer {{token}}
 
 ### Ingredientes
 
@@ -213,6 +235,18 @@ Authorization: Bearer {{token}}
 GET {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}
 Authorization: Bearer {{token}}
 Accept: application/json
+
+###
+
+# Reactivar: vuelve a quedar activo=true
+POST {{TemplateProject_HostAddress}}/api/ingredientes/{{ingredienteId}}/activar
+Authorization: Bearer {{token}}
+
+###
+
+# Debe responder 404: id inexistente
+POST {{TemplateProject_HostAddress}}/api/ingredientes/00000000-0000-0000-0000-000000000000/activar
+Authorization: Bearer {{token}}
 
 ###
 
@@ -452,6 +486,25 @@ Accept: application/json
 
 # Debe aparecer en activo=false
 GET {{TemplateProject_HostAddress}}/api/platos?activo=false
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+# Reactivar: vuelve a quedar activo=true
+POST {{TemplateProject_HostAddress}}/api/platos/{{platoId}}/activar
+Authorization: Bearer {{token}}
+
+###
+
+# Debe responder 404: id inexistente
+POST {{TemplateProject_HostAddress}}/api/platos/00000000-0000-0000-0000-000000000000/activar
+Authorization: Bearer {{token}}
+
+###
+
+# Tras reactivar: vuelve a aparecer en activo=true
+GET {{TemplateProject_HostAddress}}/api/platos?activo=true
 Authorization: Bearer {{token}}
 Accept: application/json
 

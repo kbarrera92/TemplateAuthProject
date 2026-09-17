@@ -120,5 +120,32 @@ namespace TemplateProject.Tests.Aplicacion.Servicios
             Assert.Single(soloActivas);
             Assert.Equal(activa.Id, soloActivas[0].Id);
         }
+
+        [Fact]
+        public async Task Activar_CategoriaInactiva_QuedaActiva()
+        {
+            using var contexto = CrearContexto();
+            var servicio = new ServicioCategoriasIngredientes(contexto, CrearReloj(), CrearProveedorUsuario());
+            var categoria = await servicio.Crear(new CrearCategoriaIngredienteDTO { Nombre = "Lácteos" });
+            await servicio.Desactivar(categoria.Id);
+
+            var resultado = await servicio.Activar(categoria.Id);
+
+            Assert.True(resultado);
+            var enBd = await contexto.CategoriasIngredientes.FindAsync(categoria.Id);
+            Assert.NotNull(enBd);
+            Assert.True(enBd!.Activo);
+        }
+
+        [Fact]
+        public async Task Activar_IdInexistente_RetornaFalse()
+        {
+            using var contexto = CrearContexto();
+            var servicio = new ServicioCategoriasIngredientes(contexto, CrearReloj(), CrearProveedorUsuario());
+
+            var resultado = await servicio.Activar(Guid.NewGuid());
+
+            Assert.False(resultado);
+        }
     }
 }

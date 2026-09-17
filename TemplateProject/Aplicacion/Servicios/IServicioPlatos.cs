@@ -9,6 +9,7 @@ namespace TemplateProject.Aplicacion.Servicios
         Task<PlatoDTO> Crear(CrearPlatoDTO dto);
         Task<PlatoDTO?> Actualizar(Guid id, ActualizarPlatoDTO dto);
         Task<bool> Desactivar(Guid id);
+        Task<bool> Activar(Guid id);
         Task<PlatoDTO?> AgregarIngrediente(Guid platoId, AgregarItemRecetaDTO dto);
         Task<PlatoDTO?> ActualizarCantidadIngrediente(Guid platoId, Guid ingredienteId, ActualizarItemRecetaDTO dto);
         Task<PlatoDTO?> QuitarIngrediente(Guid platoId, Guid ingredienteId);

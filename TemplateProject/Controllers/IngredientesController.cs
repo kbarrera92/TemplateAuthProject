@@ -51,6 +51,13 @@ namespace TemplateProject.Controllers
             return desactivado ? NoContent() : NotFound();
         }
 
+        [HttpPost("{id:guid}/activar")]
+        public async Task<IActionResult> Activar(Guid id)
+        {
+            var activado = await servicio.Activar(id);
+            return activado ? NoContent() : NotFound();
+        }
+
         [HttpPatch("{id:guid}/stock")]
         public async Task<ActionResult<IngredienteDTO>> AjustarStock(Guid id, AjustarStockDTO dto)
         {

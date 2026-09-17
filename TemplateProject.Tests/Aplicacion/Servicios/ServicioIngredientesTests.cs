@@ -143,6 +143,35 @@ namespace TemplateProject.Tests.Aplicacion.Servicios
         }
 
         [Fact]
+        public async Task Activar_IngredienteInactivo_QuedaActivo()
+        {
+            using var contexto = CrearContexto();
+            var tiempo = CrearReloj();
+            var (categoria, unidad) = await SembrarCatalogos(contexto, tiempo);
+            var servicio = new ServicioIngredientes(contexto, tiempo, CrearProveedorUsuario());
+            var ingrediente = await servicio.Crear(CrearDtoValido(categoria.Id, unidad.Id));
+            await servicio.Desactivar(ingrediente.Id);
+
+            var resultado = await servicio.Activar(ingrediente.Id);
+
+            Assert.True(resultado);
+            var enBd = await contexto.Ingredientes.FindAsync(ingrediente.Id);
+            Assert.NotNull(enBd);
+            Assert.True(enBd!.Activo);
+        }
+
+        [Fact]
+        public async Task Activar_IdInexistente_RetornaFalse()
+        {
+            using var contexto = CrearContexto();
+            var servicio = new ServicioIngredientes(contexto, CrearReloj(), CrearProveedorUsuario());
+
+            var resultado = await servicio.Activar(Guid.NewGuid());
+
+            Assert.False(resultado);
+        }
+
+        [Fact]
         public async Task Listar_FiltraPorActivo()
         {
             using var contexto = CrearContexto();
