@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TemplateProject.Dominio.Entidades;
 
 namespace TemplateProject.Datos
 {
@@ -9,10 +10,15 @@ namespace TemplateProject.Datos
         {
         }
 
+        public DbSet<Ingrediente> Ingredientes => Set<Ingrediente>();
+        public DbSet<CategoriaIngrediente> CategoriasIngredientes => Set<CategoriaIngrediente>();
+        public DbSet<UnidadMedida> UnidadesMedida => Set<UnidadMedida>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
-        
+
     }
 }
