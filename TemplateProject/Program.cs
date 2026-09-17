@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Text;
 using TemplateProject.Aplicacion.Errores;
 using TemplateProject.Aplicacion.Servicios;
@@ -29,9 +30,31 @@ builder.Services.AddScoped<IProveedorUsuario, ProveedorUsuarioHttp>();
 builder.Services.AddScoped<IServicioCategoriasIngredientes, ServicioCategoriasIngredientes>();
 builder.Services.AddScoped<IServicioUnidadesMedida, ServicioUnidadesMedida>();
 builder.Services.AddScoped<IServicioIngredientes, ServicioIngredientes>();
+builder.Services.AddScoped<IServicioPlatos, ServicioPlatos>();
 
 builder.Services.AddExceptionHandler<ManejadorExcepcionDominio>();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(opciones =>
+{
+    opciones.SwaggerDoc("v1", new OpenApiInfo { Title = "TemplateProject API", Version = "v1" });
+
+    opciones.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Ingresa el token JWT obtenido en /api/usuarios/login."
+    });
+
+    opciones.AddSecurityRequirement(documento => new OpenApiSecurityRequirement
+    {
+        { new OpenApiSecuritySchemeReference("Bearer", documento, null), new List<string>() }
+    });
+});
 
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
 {
@@ -54,7 +77,8 @@ app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
